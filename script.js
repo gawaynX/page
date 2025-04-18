@@ -3,7 +3,7 @@ var map = L.map('map', {
   center: [21.16481, -90.03910], // Koordinaten von der Geo-URL
   zoom: 16, // Start Zoom-Level
   minZoom: 16, // Verhindert Herauszoomen über Zoom-Level 16 hinaus
-  maxZoom: 16 // Verhindert weiteres Hineinzoomen
+  maxZoom: 20 // Verhindert weiteres Hineinzoomen
 });
 
 // Füge den OpenStreetMap-Layer hinzu
