@@ -27,7 +27,10 @@ map.on('drag', function () {
   }
 });
 
-// Füge die Leaflet-Draw-Optionen für das Hinzufügen von Markern (Bildern) hinzu
+// Erstelle eine Variable für den aktuellen Marker
+var currentMarker = null;
+
+// Füge die Leaflet-Draw-Optionen für das Hinzufügen von Markern hinzu
 var drawnItems = new L.FeatureGroup();
 map.addLayer(drawnItems);
 
@@ -58,6 +61,9 @@ map.on('draw:created', function (e) {
   var layer = e.layer;
   drawnItems.addLayer(layer);
 
+  // Setze den aktuellen Marker
+  currentMarker = layer;
+
   // Öffne das Formular für das Hochladen eines Fotos und die Kastrationsfrage
   var form = document.getElementById('uploadForm');
   form.style.display = 'block'; // Zeige das Formular an
@@ -83,14 +89,14 @@ map.on('draw:created', function (e) {
       }
 
       // Binde das Bild und die Beschreibung als Popup an den Marker
-      layer.setIcon(new L.Icon({
+      currentMarker.setIcon(new L.Icon({
         iconUrl: reader.result, // Setze das hochgeladene Bild als Marker-Icon
         iconSize: [40, 40], // Größe des Icons
         iconAnchor: [20, 40], // Position des Icons
         popupAnchor: [0, -40] // Popup-Position
       }));
 
-      layer.bindPopup(`<h3>Hund</h3><p>${description}</p><img src="${reader.result}" alt="Hund" style="width: 100px; height: auto;" />`).openPopup();
+      currentMarker.bindPopup(`<h3>Hund</h3><p>${description}</p><img src="${reader.result}" alt="Hund" style="width: 100px; height: auto;" />`).openPopup();
     };
     reader.readAsDataURL(image);
 
@@ -99,5 +105,15 @@ map.on('draw:created', function (e) {
 
     // Leere das Formular nach dem Absenden
     form.reset();
+  };
+
+  // Button zum Löschen des Markers
+  var deleteMarkerBtn = document.getElementById('deleteMarkerBtn');
+  deleteMarkerBtn.onclick = function () {
+    if (currentMarker) {
+      drawnItems.removeLayer(currentMarker); // Entferne nur den eigenen Marker
+      form.style.display = 'none'; // Verstecke das Formular
+      form.reset(); // Setze das Formular zurück
+    }
   };
 });
