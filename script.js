@@ -13,8 +13,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // Um den Bereich von allen Seiten etwas kleiner zu machen, verschieben wir die Koordinaten:
 var smallerBounds = [
-  [21.17, -90.06],  // Verschiebung nach oben und rechts
-  [21.18, -89.99]    // Verschiebung nach unten und links
+  [21.105, -90.105],  // Verschiebung nach oben und rechts
+  [21.195, -89.95]    // Verschiebung nach unten und links
 ];
 
 // Setze den neuen Bereich als Maximalbereich der Karte
