@@ -1,57 +1,37 @@
 <!DOCTYPE html>
 <html lang="de">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hundekarte von Sisal</title>
-
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
   <style>
     #map {
       height: 500px;
       width: 100%;
     }
-
     .upload-form {
       margin-top: 20px;
     }
-
-    .upload-form label,
-    .upload-form input,
-    .upload-form textarea {
-      display: block;
-      margin-bottom: 10px;
-    }
   </style>
 </head>
-
 <body>
-
   <h1>Freilaufende Hunde in Sisal</h1>
-
   <div id="map"></div>
 
-  <div class="upload-form" style="display: none;">
+  <div class="upload-form">
     <h3>Hund eintragen</h3>
-    <form id="uploadForm">
+    <form id="uploadForm" style="display: none;">
       <input type="file" name="image" required /><br />
       <textarea name="description" placeholder="Beschreibung des Hundes" required></textarea><br />
-      <label>
-        Ist der Hund kastriert?
-        <input type="radio" name="neutered" value="yes" required> Ja
-        <input type="radio" name="neutered" value="no" required> Nein
-      </label><br />
       <button type="submit">Hund eintragen</button>
-      <button type="button" id="deleteMarkerBtn">Marker löschen</button>
     </form>
+    <button id="deleteMarkerBtn">Marker löschen</button>
+    <button id="deleteAllMarkersBtn">Alle Marker löschen</button>
   </div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
   <script src="script.js"></script>
-
 </body>
-
 </html>
