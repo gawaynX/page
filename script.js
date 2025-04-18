@@ -3,7 +3,7 @@ var map = L.map('map', {
   center: [21.16481, -90.03910], // Koordinaten von der Geo-URL
   zoom: 16, // Start Zoom-Level
   minZoom: 16, // Verhindert Herauszoomen über Zoom-Level 16 hinaus
-  maxZoom: 20 // Verhindert weiteres Hineinzoomen
+  maxZoom: 16 // Verhindert weiteres Hineinzoomen
 });
 
 // Füge den OpenStreetMap-Layer hinzu
@@ -11,16 +11,18 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Setze die maximalen Bounds für den Bereich (optional)
+// Um den Bereich von allen Seiten etwas kleiner zu machen, verschieben wir die Koordinaten:
 var smallerBounds = [
-  [21.105, -90.105],  
-  [21.195, -89.95]
-]; 
-map.setMaxBounds(bounds);
+  [21.105, -90.105],  // Verschiebung nach oben und rechts
+  [21.195, -89.95]    // Verschiebung nach unten und links
+];
+
+// Setze den neuen Bereich als Maximalbereich der Karte
+map.setMaxBounds(smallerBounds);
 
 // Verhindere das Ziehen außerhalb des Bounds
 map.on('drag', function () {
-  if (map.getBounds().equals(bounds)) {
+  if (map.getBounds().equals(smallerBounds)) {
     map.dragging.disable(); // Deaktiviert das Ziehen außerhalb des Bounds
   }
 });
@@ -56,28 +58,46 @@ map.on('draw:created', function (e) {
   var layer = e.layer;
   drawnItems.addLayer(layer);
 
-  // Wenn ein Marker hinzugefügt wird, öffne ein Formular zur Bild- und Beschreibungsanzeige
+  // Öffne das Formular für das Hochladen eines Fotos und die Kastrationsfrage
   var form = document.getElementById('uploadForm');
+  form.style.display = 'block'; // Zeige das Formular an
+
+  // Formular-Ereignis: Wenn das Formular abgeschickt wird
   form.onsubmit = function (event) {
     event.preventDefault();
 
     var formData = new FormData(form);
     var image = formData.get('image');
     var description = formData.get('description');
-    
-    // Zeige die Datei als Bild im Marker-Popup an
+    var isNeutered = formData.get('neutered') === 'yes'; // Überprüfe, ob der Hund kastriert ist
+
+    // Verarbeite das Bild und setze es als Icon für den Marker
     var reader = new FileReader();
     reader.onloadend = function () {
       var imgElement = new Image();
       imgElement.src = reader.result;
 
-      // Füge das Bild und die Beschreibung als Popup zum Marker hinzu
+      // Wenn der Hund kastriert ist, füge einen grünen Rand hinzu
+      if (isNeutered) {
+        imgElement.style.border = '5px solid green'; // Grüner Rand für kastrierte Hunde
+      }
+
+      // Binde das Bild und die Beschreibung als Popup an den Marker
+      layer.setIcon(new L.Icon({
+        iconUrl: reader.result, // Setze das hochgeladene Bild als Marker-Icon
+        iconSize: [40, 40], // Größe des Icons
+        iconAnchor: [20, 40], // Position des Icons
+        popupAnchor: [0, -40] // Popup-Position
+      }));
+
       layer.bindPopup(`<h3>Hund</h3><p>${description}</p><img src="${reader.result}" alt="Hund" style="width: 100px; height: auto;" />`).openPopup();
     };
     reader.readAsDataURL(image);
-    
+
+    // Blende das Formular nach dem Hochladen aus
+    form.style.display = 'none';
+
     // Leere das Formular nach dem Absenden
     form.reset();
   };
 });
-
