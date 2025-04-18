@@ -12,7 +12,10 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // Setze die maximalen Bounds für den Bereich (optional)
-var bounds = [[21.10, -90.10], [21.20, -90.00]]; // Beispielhafte Begrenzung für Sisal
+var smallerBounds = [
+  [21.105, -90.105],  
+  [21.195, -89.95]
+]; 
 map.setMaxBounds(bounds);
 
 // Verhindere das Ziehen außerhalb des Bounds
