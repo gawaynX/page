@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hundekarte von Sisal</title>
+
+  <!-- Leaflet CSS für die Karte -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw/dist/leaflet.draw.css" />
+
+  <style>
+    #map {
+      height: 500px;
+      width: 100%;
+    }
+
+    .upload-form {
+      margin-top: 20px;
+    }
+
+    .upload-form input,
+    .upload-form textarea,
+    .upload-form button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Freilaufende Hunde in Sisal</h1>
+
+  <!-- Karte -->
+  <div id="map"></div>
+
+  <!-- Formular zum Hochladen von Hundebildern und Beschreibung -->
+  <div class="upload-form">
+    <h3>Hund eintragen</h3>
+    <form id="uploadForm">
+      <input type="file" name="image" required /><br />
+      <textarea name="description" placeholder="Beschreibung des Hundes" required></textarea><br />
+      <button type="submit">Hund eintragen</button>
+    </form>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw/dist/leaflet.draw.js"></script>
+
+  <!-- Dein JavaScript (lokal oder über GitHub einbinden) -->
+  <script src="script.js"></script>
+
+</body>
+</html>
