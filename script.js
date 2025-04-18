@@ -13,8 +13,8 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // Um den Bereich von allen Seiten etwas kleiner zu machen, verschieben wir die Koordinaten:
 var smallerBounds = [
-  [21.105, -90.105],  // Verschiebung nach oben und rechts
-  [21.195, -89.95]    // Verschiebung nach unten und links
+  [21.17, -90.06],  // Verschiebung nach oben und rechts
+  [21.18, -89.99]    // Verschiebung nach unten und links
 ];
 
 // Setze den neuen Bereich als Maximalbereich der Karte
@@ -68,6 +68,12 @@ map.on('draw:created', function (e) {
   var form = document.getElementById('uploadForm');
   form.style.display = 'block'; // Zeige das Formular an
 
+  // Automatische Anzeige der Kastrationsfrage
+  var neuteredPrompt = confirm("Ist der Hund kastriert?");
+
+  // Wenn der Hund kastriert ist, setze einen grünen Rand um das Bild
+  var isNeutered = neuteredPrompt;
+
   // Formular-Ereignis: Wenn das Formular abgeschickt wird
   form.onsubmit = function (event) {
     event.preventDefault();
@@ -75,7 +81,6 @@ map.on('draw:created', function (e) {
     var formData = new FormData(form);
     var image = formData.get('image');
     var description = formData.get('description');
-    var isNeutered = formData.get('neutered') === 'yes'; // Überprüfe, ob der Hund kastriert ist
 
     // Verarbeite das Bild und setze es als Icon für den Marker
     var reader = new FileReader();
@@ -117,3 +122,12 @@ map.on('draw:created', function (e) {
     }
   };
 });
+
+// Button zum Löschen aller Marker
+var deleteAllMarkersBtn = document.getElementById('deleteAllMarkersBtn');
+deleteAllMarkersBtn.onclick = function () {
+  drawnItems.clearLayers(); // Entferne alle Marker
+  var form = document.getElementById('uploadForm');
+  form.style.display = 'none'; // Verstecke das Formular
+  form.reset(); // Setze das Formular zurück
+};
