@@ -2,22 +2,35 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hundekarte von Sisal</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-
     #map {
-      height: 100vh;
+      height: 90vh;
       width: 100%;
     }
 
-    .leaflet-container img.leaflet-marker-icon {
+    .custom-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .custom-popup button {
+      margin: 5px;
+      padding: 8px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .marker-icon {
       border-radius: 50%;
       border: 3px solid transparent;
       object-fit: cover;
@@ -26,31 +39,20 @@
     .green-border {
       border: 3px solid green !important;
     }
-
-    .custom-modal {
-      position: fixed;
-      top: 30%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      z-index: 1000;
-      border: 2px solid #ccc;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      text-align: center;
-    }
-
-    .custom-modal button {
-      margin: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
+  <h1 style="text-align:center;">🐶 Hundekarte von Sisal</h1>
   <div id="map"></div>
+
+  <!-- Benutzerdefinierter Dialog -->
+  <div id="uploadPrompt" class="custom-popup" style="display: none;">
+    <p>Möchtest du ein Bild an dieser Stelle hochladen?</p>
+    <button onclick="handleUploadChoice(true)">Ja</button>
+    <button onclick="handleUploadChoice(false)">Nein</button>
+  </div>
+
+  <input type="file" id="fileInput" accept="image/*" style="display:none" />
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="script.js"></script>
