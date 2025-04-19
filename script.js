@@ -1,26 +1,30 @@
-// Karte initialisieren
+let markerSetMode = false;
+let userMarkers = [];
+
 const map = L.map('map', {
   center: [21.16481, -90.03910],
   zoom: 16,
   minZoom: 16,
-  maxZoom: 20
+  maxBounds: [
+    [21.158, -90.047], // Südwestliche Ecke
+    [21.172, -90.031]  // Nordöstliche Ecke
+  ]
 });
 
+// OpenStreetMap Tiles
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap-Mitwirkende'
 }).addTo(map);
 
-let userMarkers = [];
-let markerSetMode = false; // Marker-Modus: aktiv oder nicht?
-
-// Eigener Marker-Button
+// 🐶 Button zum Marker setzen
 const markerButton = L.control({ position: 'topleft' });
 
 markerButton.onAdd = function () {
   const btn = L.DomUtil.create('button', 'leaflet-bar');
   btn.innerHTML = '🐶';
-  btn.title = 'Marker setzen';
+  btn.title = 'Hundemarkierung setzen';
 
+  // Styling
   btn.style.backgroundColor = 'white';
   btn.style.width = '34px';
   btn.style.height = '34px';
@@ -29,7 +33,9 @@ markerButton.onAdd = function () {
   btn.style.alignItems = 'center';
   btn.style.justifyContent = 'center';
   btn.style.fontSize = '20px';
+  btn.style.padding = '0';
 
+  // Klick-Aktion
   L.DomEvent.on(btn, 'click', function (e) {
     L.DomEvent.stopPropagation(e);
     markerSetMode = true;
@@ -41,60 +47,42 @@ markerButton.onAdd = function () {
 
 markerButton.addTo(map);
 
-// Bild als Icon
-function createImageIcon(imgUrl, isNeutered) {
-  const img = document.createElement('img');
-  img.src = imgUrl;
-  img.className = 'marker-image';
-  if (isNeutered) img.classList.add('neutered');
-
-  const div = document.createElement('div');
-  div.appendChild(img);
-
-  return L.divIcon({
-    html: div.innerHTML,
-    className: '',
-    iconSize: [50, 50],
-    iconAnchor: [25, 25]
-  });
-}
-
-// Marker hinzufügen
-function addMarker(latlng, imgUrl, isNeutered) {
-  const marker = L.marker(latlng, {
-    icon: createImageIcon(imgUrl, isNeutered)
-  }).addTo(map);
-
-  marker.on('click', () => {
-    if (confirm('Möchtest du diesen Marker entfernen?')) {
-      map.removeLayer(marker);
-      userMarkers = userMarkers.filter(m => m !== marker);
-    }
-  });
-
-  userMarkers.push(marker);
-}
-
-// Klick auf Karte → Marker setzen (wenn aktiviert)
-map.on('click', (e) => {
+// Marker setzen nach Klick
+map.on('click', function (e) {
   if (!markerSetMode) return;
   markerSetMode = false;
 
-  const latlng = e.latlng;
+  // Nach Kastration fragen
+  const kastriert = confirm('Wurde dieser Hund kastriert?');
 
+  // Datei-Upload
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.accept = 'image/*';
 
-  fileInput.onchange = () => {
+  fileInput.onchange = function () {
     const file = fileInput.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = () => {
-      const imgUrl = reader.result;
-      const isNeutered = confirm('Ist der Hund kastriert?');
-      addMarker(latlng, imgUrl, isNeutered);
+    reader.onload = function (event) {
+      const imgUrl = event.target.result;
+
+      // Icon mit optionalem grünem Rand
+      const icon = L.icon({
+        iconUrl: imgUrl,
+        iconSize: [50, 50],
+        className: kastriert ? 'green-border' : ''
+      });
+
+      const marker = L.marker(e.latlng, { icon: icon, draggable: false }).addTo(map);
+      userMarkers.push(marker);
+
+      // Rechtsklick zum Löschen
+      marker.on('contextmenu', function () {
+        map.removeLayer(marker);
+        userMarkers = userMarkers.filter(m => m !== marker);
+      });
     };
     reader.readAsDataURL(file);
   };
