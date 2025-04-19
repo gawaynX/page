@@ -1,46 +1,25 @@
 <!DOCTYPE html>
 <html lang="de">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Hundekarte von Sisal</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     #map {
-  height: 500px;
-  width: 100%;
-}
-
-.green-border img {
-  border: 3px solid green;
-  border-radius: 50%;
-}
-
-    .leaflet-marker-icon img {
-      border-radius: 50%;
+      height: 100vh;
+      width: 100%;
     }
-
-    .marker-image {
-      width: 50px;
-      height: 50px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 3px solid transparent;
-    }
- 
-
-    .marker-image.neutered {
+    .green-border img {
       border: 3px solid green;
+      border-radius: 50%;
     }
   </style>
 </head>
-
 <body>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="script.js"></script>
 </body>
-
 </html>
