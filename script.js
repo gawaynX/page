@@ -1,111 +1,116 @@
-let userMarkers = [];
-
 const map = L.map('map', {
   center: [21.16481, -90.03910],
   zoom: 16,
   minZoom: 16,
   maxZoom: 20,
-  maxBounds: [
-    [21.158, -90.047],
-    [21.172, -90.031]
-  ]
+  zoomControl: true,
 });
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors'
+  attribution: '© OpenStreetMap',
 }).addTo(map);
 
-function askKastriert(callback) {
-  const modal = document.createElement('div');
-  modal.className = 'custom-modal';
-  modal.innerHTML = `
-    <p>Wurde der Hund kastriert?</p>
-    <button id="yesBtn">Ja</button>
-    <button id="noBtn">Nein</button>
-  `;
-  document.body.appendChild(modal);
-
-  modal.querySelector('#yesBtn').onclick = () => {
-    document.body.removeChild(modal);
-    callback(true);
-  };
-
-  modal.querySelector('#noBtn').onclick = () => {
-    document.body.removeChild(modal);
-    callback(false);
-  };
-}
-
-function createMarker(latlng, iconUrl, kastriert) {
-  const icon = L.icon({
-    iconUrl: iconUrl,
-    iconSize: [50, 50],
-    className: kastriert ? 'green-border' : ''
-  });
-
-  const marker = L.marker(latlng, { icon: icon }).addTo(map);
-  userMarkers.push(marker);
-
-  marker.on('click', function () {
-    const action = prompt("Was möchtest du tun?\n1 = Bearbeiten\n2 = Löschen\n3 = Abbrechen");
-    if (action === '1') {
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = 'image/*';
-
-      fileInput.onchange = function () {
-        const file = fileInput.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          askKastriert(function (kastriert) {
-            const newIcon = L.icon({
-              iconUrl: event.target.result,
-              iconSize: [50, 50],
-              className: kastriert ? 'green-border' : ''
-            });
-            marker.setIcon(newIcon);
-          });
-        };
-        reader.readAsDataURL(file);
-      };
-
-      fileInput.click();
-    } else if (action === '2') {
-      map.removeLayer(marker);
-      userMarkers = userMarkers.filter(m => m !== marker);
-    }
-  });
-
-  return marker;
-}
+let currentLatLng = null;
 
 map.on('click', function (e) {
-  const wantsImage = confirm('Möchtest du ein Bild an dieser Stelle hochladen?');
-  if (wantsImage) {
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
+  currentLatLng = e.latlng;
+  document.getElementById('uploadPrompt').style.display = 'block';
+});
 
-    fileInput.onchange = function () {
-      const file = fileInput.files[0];
+window.handleUploadChoice = function (wantsToUpload) {
+  document.getElementById('uploadPrompt').style.display = 'none';
+
+  if (wantsToUpload) {
+    const input = document.getElementById('fileInput');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files[0];
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = function (event) {
-        askKastriert(function (kastriert) {
-          createMarker(e.latlng, event.target.result, kastriert);
+      reader.onload = () => {
+        askNeutered().then((isNeutered) => {
+          createImageMarker(reader.result, isNeutered);
+          input.value = ''; // Reset input
         });
       };
       reader.readAsDataURL(file);
     };
-
-    fileInput.click();
   } else {
-    const emojiUrl = 'https://twemoji.maxcdn.com/v/latest/72x72/1f436.png';
-    askKastriert(function (kastriert) {
-      createMarker(e.latlng, emojiUrl, kastriert);
+    askNeutered().then((isNeutered) => {
+      const dogEmoji = '🐶';
+      const icon = L.divIcon({
+        html: `<div class="marker-icon ${isNeutered ? 'green-border' : ''}" style="font-size: 24px;">${dogEmoji}</div>`,
+        className: '',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+      });
+      const marker = L.marker(currentLatLng, { icon }).addTo(map);
+      addMarkerPopup(marker);
     });
   }
-});
+};
+
+function createImageMarker(imageSrc, isNeutered) {
+  const img = new Image();
+  img.src = imageSrc;
+  img.onload = () => {
+    const icon = L.divIcon({
+      html: `<img src="${imageSrc}" class="marker-icon ${isNeutered ? 'green-border' : ''}" width="40" height="40"/>`,
+      className: '',
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+    });
+    const marker = L.marker(currentLatLng, { icon }).addTo(map);
+    addMarkerPopup(marker);
+  };
+}
+
+function askNeutered() {
+  return new Promise((resolve) => {
+    const popup = document.createElement('div');
+    popup.className = 'custom-popup';
+    popup.innerHTML = `
+      <p>Ist der Hund kastriert?</p>
+      <button id="yesBtn">Ja</button>
+      <button id="noBtn">Nein</button>
+    `;
+    document.body.appendChild(popup);
+
+    popup.querySelector('#yesBtn').onclick = () => {
+      document.body.removeChild(popup);
+      resolve(true);
+    };
+    popup.querySelector('#noBtn').onclick = () => {
+      document.body.removeChild(popup);
+      resolve(false);
+    };
+  });
+}
+
+function addMarkerPopup(marker) {
+  marker.on('click', () => {
+    const popup = document.createElement('div');
+    popup.className = 'custom-popup';
+    popup.innerHTML = `
+      <p>Was möchtest du tun?</p>
+      <button id="editBtn">Bearbeiten</button>
+      <button id="deleteBtn">Löschen</button>
+      <button id="cancelBtn">Abbrechen</button>
+    `;
+    document.body.appendChild(popup);
+
+    popup.querySelector('#editBtn').onclick = () => {
+      alert("Bearbeiten ist noch nicht implementiert.");
+      document.body.removeChild(popup);
+    };
+    popup.querySelector('#deleteBtn').onclick = () => {
+      map.removeLayer(marker);
+      document.body.removeChild(popup);
+    };
+    popup.querySelector('#cancelBtn').onclick = () => {
+      document.body.removeChild(popup);
+    };
+  });
+}
